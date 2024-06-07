@@ -1,0 +1,41 @@
+name: Laravel CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.0 # Cambia a la versión de PHP que necesites
+        extensions: mbstring, exif, pcntl
+        ini-values: post_max_size=256M, upload_max_filesize=256M, max_execution_time=300
+        coverage: none
+        tools: composer
+
+    - name: Install dependencies
+      run: composer install
+
+    - name: Copy .env.example to .env
+      run: cp .env.example .env
+
+    - name: Generate key
+      run: php artisan key:generate
+
+    - name: Run migrations
+      run: php artisan migrate --force
+
+    - name: Run tests
+      run: php artisan test
+
